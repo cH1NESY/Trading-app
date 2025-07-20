@@ -33,6 +33,9 @@ Route::prefix('web')->group(function () {
     Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/orders/{order}/resume', [OrderController::class, 'resume'])->name('orders.resume');
+
+    // История движений товаров
+    Route::get('/stock-movements', [\App\Http\Controllers\Web\StockMovementController::class, 'showList'])->name('stock_movements.index');
 });
 
 // API маршруты (для AJAX запросов)

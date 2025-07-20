@@ -9,6 +9,8 @@ use App\DTO\OrderCreateDTO;
 use App\DTO\OrderUpdateDTO;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\StockMovement;
+use App\DTO\OrderFilterDTO;
 
 class OrderService
 {
@@ -36,6 +38,13 @@ class OrderService
                     'count' => $item->count,
                 ]);
                 Stock::safeDecreaseStock($item->product_id, $dto->warehouse_id, $item->count);
+                StockMovement::create([
+                    'product_id' => $item->product_id,
+                    'warehouse_id' => $dto->warehouse_id,
+                    'quantity' => -$item->count,
+                    'type' => 'order_create',
+                    'description' => 'Списание при создании заказа',
+                ]);
             }
             return $order->fresh(['warehouse', 'items.product']);
         });
@@ -50,6 +59,13 @@ class OrderService
             if ($newWarehouseId != $oldWarehouseId) {
                 foreach ($order->items as $item) {
                     Stock::safeIncreaseStock($item->product_id, $oldWarehouseId, $item->count);
+                    StockMovement::create([
+                        'product_id' => $item->product_id,
+                        'warehouse_id' => $oldWarehouseId,
+                        'quantity' => $item->count,
+                        'type' => 'order_update_return',
+                        'description' => 'Возврат товара при изменении склада заказа',
+                    ]);
                 }
                 foreach ($dto->items as $item) {
                     $stock = Stock::findOrCreate($item->product_id, $newWarehouseId, 0);
@@ -74,10 +90,24 @@ class OrderService
                             'count' => $item->count,
                         ]);
                         Stock::safeDecreaseStock($item->product_id, $newWarehouseId, $item->count);
+                        StockMovement::create([
+                            'product_id' => $item->product_id,
+                            'warehouse_id' => $newWarehouseId,
+                            'quantity' => -$item->count,
+                            'type' => 'order_update_decrease',
+                            'description' => 'Списание при изменении склада заказа',
+                        ]);
                     }
                 } else {
                     foreach ($order->items as $item) {
                         Stock::safeIncreaseStock($item->product_id, $order->warehouse_id, $item->count);
+                        StockMovement::create([
+                            'product_id' => $item->product_id,
+                            'warehouse_id' => $order->warehouse_id,
+                            'quantity' => $item->count,
+                            'type' => 'order_update_return',
+                            'description' => 'Возврат товара при изменении склада заказа',
+                        ]);
                     }
                     $order->items()->delete();
                     foreach ($dto->items as $item) {
@@ -93,6 +123,13 @@ class OrderService
                             'count' => $item->count,
                         ]);
                         Stock::safeDecreaseStock($item->product_id, $order->warehouse_id, $item->count);
+                        StockMovement::create([
+                            'product_id' => $item->product_id,
+                            'warehouse_id' => $order->warehouse_id,
+                            'quantity' => -$item->count,
+                            'type' => 'order_update_decrease',
+                            'description' => 'Списание при изменении склада заказа',
+                        ]);
                     }
                 }
             }
@@ -124,6 +161,13 @@ class OrderService
             // Возвращаем товары на склад
             foreach ($order->items as $item) {
                 Stock::safeIncreaseStock($item->product_id, $order->warehouse_id, $item->count);
+                StockMovement::create([
+                    'product_id' => $item->product_id,
+                    'warehouse_id' => $order->warehouse_id,
+                    'quantity' => $item->count,
+                    'type' => 'order_cancel_return',
+                    'description' => 'Возврат товара при отмене заказа',
+                ]);
             }
 
             $order->update(['status' => Order::STATUS_CANCELED]);
@@ -151,6 +195,13 @@ class OrderService
             // Списываем товары со склада
             foreach ($order->items as $item) {
                 Stock::safeDecreaseStock($item->product_id, $order->warehouse_id, $item->count);
+                StockMovement::create([
+                    'product_id' => $item->product_id,
+                    'warehouse_id' => $order->warehouse_id,
+                    'quantity' => -$item->count,
+                    'type' => 'order_resume_decrease',
+                    'description' => 'Списание при возобновлении заказа',
+                ]);
             }
 
             $order->update(['status' => Order::STATUS_ACTIVE]);
@@ -159,20 +210,18 @@ class OrderService
         });
     }
 
-    public function getOrdersWithFilters(Request $request, int $perPage = 15)
+    public function getOrdersWithFilters(OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::with(['warehouse', 'items.product']);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        if ($dto->status) {
+            $query->where('status', $dto->status);
         }
-
-        if ($request->filled('warehouse_id')) {
-            $query->where('warehouse_id', $request->warehouse_id);
+        if ($dto->warehouse_id) {
+            $query->where('warehouse_id', $dto->warehouse_id);
         }
-
-        if ($request->filled('customer')) {
-            $query->where('customer', 'like', '%' . $request->customer . '%');
+        if ($dto->customer) {
+            $query->where('customer', 'like', '%' . $dto->customer . '%');
         }
 
         return $query->latest()->paginate($perPage);

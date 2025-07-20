@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use App\Services\OrderService;
 use App\DTO\OrderCreateDTO;
 use App\DTO\OrderUpdateDTO;
+use App\DTO\OrderFilterDTO;
 use App\Http\Requests\OrderCreateRequest;
 use App\Http\Requests\OrderUpdateRequest;
 
@@ -18,7 +19,9 @@ class OrderController extends Controller
 {
     public function showList(Request $request, OrderService $orderService)
     {
-        $orders = $orderService->getOrdersWithFilters($request, 15);
+        $dto = new OrderFilterDTO($request->all());
+        $perPage = $request->get('per_page', 15);
+        $orders = $orderService->getOrdersWithFilters($dto, $perPage);
         $warehouses = Warehouse::all();
 
         if ($request->expectsJson()) {

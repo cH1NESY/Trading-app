@@ -59,6 +59,11 @@
                                 <i class="fas fa-plus"></i> Создать заказ
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('stock_movements.index') }}">
+                                <i class="fas fa-history"></i> История движений
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
