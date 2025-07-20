@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function showList(Request $request)
+    public function index(Request $request)
     {
         $products = Product::with(['stocks.warehouse'])->get();
-        return view('products.index', compact('products'));
+        return response()->json(['success' => true, 'data' => $products]);
     }
 } 
