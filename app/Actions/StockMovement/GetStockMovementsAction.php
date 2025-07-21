@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Actions\StockMovement;
 
 use App\DTO\StockMovementFilterDTO;
 use App\Models\StockMovement;
 
-class StockMovementService
+class GetStockMovementsAction
 {
     /**
      * Получить историю движений с фильтрами и пагинацией
@@ -15,7 +15,7 @@ class StockMovementService
      * @param int|null $page Номер страницы
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getFilteredMovements(StockMovementFilterDTO $dto, int $perPage = 15, int $page = null)
+    public function execute(StockMovementFilterDTO $dto, int $perPage = 15, int $page = null)
     {
         // Формируем запрос с загрузкой связей и фильтрами
         $query = StockMovement::with(['product', 'warehouse'])
@@ -31,4 +31,4 @@ class StockMovementService
         // Стандартная пагинация
         return $query->paginate($perPage);
     }
-}
+} 

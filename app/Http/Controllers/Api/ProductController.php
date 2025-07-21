@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Http\Resources\ProductResource;
 
 
 class ProductController extends Controller
@@ -18,21 +19,7 @@ class ProductController extends Controller
     {
         // Получаем все продукты с остатками по складам
         $products = Product::with(['stocks.warehouse'])->get();
-        // Формируем результат: по каждому продукту список складов и остатков
-        $result = $products->map(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'warehouses' => $product->stocks->map(function ($stock) {
-                    return [
-                        'warehouse_id' => $stock->warehouse->id,
-                        'warehouse_name' => $stock->warehouse->name,
-                        'stock' => $stock->stock
-                    ];
-                })
-            ];
-        });
-        return response()->json(['success' => true, 'data' => $result]);
+        // Возвращаем коллекцию ресурсов
+        return response()->json(['success' => true, 'data' => ProductResource::collection($products)]);
     }
 }
