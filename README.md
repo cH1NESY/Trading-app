@@ -115,6 +115,12 @@
 - **docker-compose.yml** — Настройки для запуска контейнеров с помощью Docker Compose.
 - **.env** — Файл с переменными окружения для настройки конфигураций.
 - **README.md** — Описание проекта, инструкция по установке и запуску.
+- **OrderApiTest** - Проверка работы api заказов.
+- **ProductApiTest** - Проверка работы api продуктов.
+- **WarehouseApiTest** - Проверка работы api складов.
+- **StockMovementApiTest** - Проверка работы api истории движения.
+
+
 
 ## Эндпоинты
 
@@ -198,6 +204,11 @@ PATCH http://localhost:93/api/orders/{id активного заказа}/cancel
 5. Заполнение бд данными
    Оставаясь в контейнере:
    php artisan db:seed
+
+6. Запуск api тестов
+   Оставаясь в контейнере:
+   php artisan test
+
 
 
 # Trading-app
