@@ -174,7 +174,7 @@ PATCH http://localhost:93/api/orders/{id активного заказа}/cancel
 ## Инструкция по запуску
 
 1. Клонирование репозитория
-   git clone git@github.com:cH1NESY/Crypto-Tracker.git
+   git clone git@github.com:cH1NESY/Trading-app.git
    cd trading-app
 
 2. Запуск контейнеров
@@ -191,7 +191,7 @@ PATCH http://localhost:93/api/orders/{id активного заказа}/cancel
 
 4. Выполнение миграции
    Вводим в терминал:
-   docker exec -it php-fpm-crypto bash
+   docker exec -it php-fpm-tr bash
    в контейнере запускаем миграцию:
    php artisan migrate
 
