@@ -4,13 +4,35 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use Illuminate\Http\Request;
+
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Получить список продуктов с остатками по складам
+     *
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
     {
+        // Получаем все продукты с остатками по складам
         $products = Product::with(['stocks.warehouse'])->get();
-        return response()->json(['success' => true, 'data' => $products]);
+        // Формируем результат: по каждому продукту список складов и остатков
+        $result = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'warehouses' => $product->stocks->map(function ($stock) {
+                    return [
+                        'warehouse_id' => $stock->warehouse->id,
+                        'warehouse_name' => $stock->warehouse->name,
+                        'stock' => $stock->stock
+                    ];
+                })
+            ];
+        });
+        return response()->json(['success' => true, 'data' => $result]);
     }
-} 
+}

@@ -6,10 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * Базовый FormRequest с глобальной обработкой ошибок валидации
+ */
 abstract class BaseFormRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Разрешить выполнение запроса (по умолчанию true)
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -17,10 +22,14 @@ abstract class BaseFormRequest extends FormRequest
     }
 
     /**
-     * Handle a failed validation attempt.
+     * Глобальная обработка ошибок валидации
+     *
+     * @param Validator $validator
+     * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator)
     {
+        // Для API-запросов возвращаем JSON с ошибками
         if ($this->expectsJson()) {
             throw new HttpResponseException(
                 response()->json([
@@ -29,7 +38,7 @@ abstract class BaseFormRequest extends FormRequest
                 ], 422)
             );
         }
-
+        // Для web-запросов — стандартное поведение
         parent::failedValidation($validator);
     }
 } 

@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests;
 
+/**
+ * FormRequest для создания заказа
+ */
 class OrderCreateRequest extends BaseFormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
+     * Правила валидации для создания заказа
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array
      */
     public function rules(): array
     {
@@ -21,7 +24,9 @@ class OrderCreateRequest extends BaseFormRequest
     }
 
     /**
-     * Get custom messages for validator errors.
+     * Кастомные сообщения об ошибках валидации
+     *
+     * @return array
      */
     public function messages(): array
     {

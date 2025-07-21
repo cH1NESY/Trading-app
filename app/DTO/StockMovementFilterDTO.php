@@ -4,6 +4,7 @@ namespace App\DTO;
 
 class StockMovementFilterDTO
 {
+
     public ?int $product_id;
     public ?int $warehouse_id;
     public ?string $date_from;
@@ -16,4 +17,4 @@ class StockMovementFilterDTO
         $this->date_from = $data['date_from'] ?? null;
         $this->date_to = $data['date_to'] ?? null;
     }
-} 
+}

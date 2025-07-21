@@ -8,7 +8,7 @@ use Throwable;
 class Handler extends ExceptionHandler
 {
     /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
+     * Список полей, которые никогда не попадают в сессию при ошибках валидации
      *
      * @var array<int, string>
      */
@@ -19,34 +19,38 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * Регистрация колбэков для обработки исключений
      */
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            // Можно добавить кастомную логику логирования
         });
     }
 
     /**
-     * Render an exception into an HTTP response.
+     * Глобальная обработка исключений приложения
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param Throwable $exception
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Throwable $exception)
     {
-        // Глобальная обработка бизнес-исключений
+        // Глобальная обработка бизнес-исключений (например, RuntimeException)
         if ($exception instanceof \RuntimeException) {
             $message = $exception->getMessage();
-            
+            // Для API-запросов возвращаем JSON с ошибкой
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => $message,
                 ], 400);
             }
-            
+            // Для web-запросов — редирект с ошибкой
             return redirect()->back()->withInput()->with('error', $message);
         }
-
+        // Для остальных исключений — стандартная обработка Laravel
         return parent::render($request, $exception);
     }
 } 

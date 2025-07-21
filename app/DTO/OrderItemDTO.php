@@ -2,6 +2,7 @@
 
 namespace App\DTO;
 
+
 class OrderItemDTO
 {
     public int $product_id;
@@ -12,4 +13,4 @@ class OrderItemDTO
         $this->product_id = (int) $data['product_id'];
         $this->count = (int) $data['count'];
     }
-} 
+}

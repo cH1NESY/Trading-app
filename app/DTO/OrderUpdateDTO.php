@@ -2,11 +2,11 @@
 
 namespace App\DTO;
 
+
 class OrderUpdateDTO
 {
     public ?string $customer;
     public ?int $warehouse_id;
-    /** @var OrderItemDTO[] */
     public array $items;
 
     public function __construct(array $data)
@@ -15,4 +15,4 @@ class OrderUpdateDTO
         $this->warehouse_id = isset($data['warehouse_id']) ? (int)$data['warehouse_id'] : null;
         $this->items = array_map(fn($item) => new OrderItemDTO($item), $data['items'] ?? []);
     }
-} 
+}
